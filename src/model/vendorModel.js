@@ -16,4 +16,4 @@ const VendorSchema = new mongoose.Schema({
 VendorSchema.index({ Bank_Account_No: 1, Bank_Name: 1 }, { unique: true });
 
 
-export default mongoose.models.Product || mongoose.model('Product', ProductSchema);
+export default mongoose.models.Product || mongoose.model('vendor', VendorSchema);
