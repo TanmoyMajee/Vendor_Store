@@ -11,7 +11,7 @@ const VendorList = ({ vendors = [], pagination = {}, onDelete, onPageChange }) =
   return (
     <div>
       {/* Vendor Actions */}
-      <div className="flex justify-between items-center mb-8">
+      <div className=" flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold text-gray-800">Vendors</h1>
         <Link
           href="/dashboard/add-vendor"
@@ -69,24 +69,6 @@ const VendorList = ({ vendors = [], pagination = {}, onDelete, onPageChange }) =
           </tbody>
         </table>
       </div>
-
-      {/* Pagination */}
-      {pagination.totalPages > 1 && (
-        <div className="flex justify-center gap-2 mt-8">
-          {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map((page) => (
-            <button
-              key={page}
-              onClick={() => onPageChange && onPageChange(page)}
-              className={`px-4 py-2 border rounded ${pagination.page === page
-                  ? 'bg-purple-600 text-white border-purple-600'
-                  : 'text-purple-600 border-purple-600 hover:bg-purple-600 hover:text-white'
-                } transition-colors`}
-            >
-              {page}
-            </button>
-          ))}
-        </div>
-      )}
     </div>
   )
 }

@@ -200,7 +200,10 @@ export default function Dashboard() {
           />
         )}
       </div>
-      <Pagination pagination={pagination} onPageChange={handlePageChange} />
+      <div className='mt-0'>
+        <Pagination pagination={pagination} onPageChange={handlePageChange} />
+      </div>
+      
     </div>
   )
 }

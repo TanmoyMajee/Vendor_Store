@@ -37,7 +37,7 @@ export async function GET(request) {
 
     // Simple pagination, no search
     const [vendors, total] = await Promise.all([
-      vendorModel.find().skip(skip).limit(limit).lean(),
+      vendorModel.find().sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
       vendorModel.countDocuments()
     ]);
 
