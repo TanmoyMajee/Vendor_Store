@@ -13,7 +13,6 @@ const vendorSchema = z.object({
   Zip_Code: z.string().optional(),
 });
 
-// Get all vendors with pagination
 export async function GET(request) {
   try {
     // Check authentication
@@ -27,32 +26,19 @@ export async function GET(request) {
       );
     }
 
-    console.log('�� User authenticated:', userEmail);
+    console.log('✅ User authenticated:', userEmail);
     await connectToDatabase();
 
-    // Get query parameters for pagination
+    // Extract pagination params from the request URL
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get('page')) || 1;
-    const limit = parseInt(searchParams.get('limit')) || 10;
+    const limit = parseInt(searchParams.get('limit')) || 6;
     const skip = (page - 1) * limit;
 
-    // Add search functionality
-    const search = searchParams.get('search') || '';
-    let query = {};
-
-    if (search) {
-      query = {
-        $or: [
-          { name: { $regex: search, $options: 'i' } },
-          { Bank_Name: { $regex: search, $options: 'i' } },
-          { City: { $regex: search, $options: 'i' } }
-        ]
-      };
-    }
-
+    // Simple pagination, no search
     const [vendors, total] = await Promise.all([
-      vendorModel.find(query).skip(skip).limit(limit).lean(),
-      vendorModel.countDocuments(query)
+      vendorModel.find().skip(skip).limit(limit).lean(),
+      vendorModel.countDocuments()
     ]);
 
     return Response.json({
@@ -65,6 +51,7 @@ export async function GET(request) {
       }
     });
   } catch (error) {
+    console.log(error);
     return Response.json({ error: error.message || "Internal Server Error" }, { status: 500 });
   }
 }

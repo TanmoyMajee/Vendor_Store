@@ -1,36 +1,77 @@
+
+
 "use client"
 
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/context/authContext'
-import { useRouter } from 'next/navigation'
+import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 
-export default function AddVendor() {
-  const { user, loading ,token } = useAuth()
+export default function EditVendor() {
+  const { user, loading, token } = useAuth()
   const router = useRouter()
+  const { id } = useParams()
+
+  // Form state matching API field names
   const [formData, setFormData] = useState({
-    vendorName: '',
-    bankAccountNo: '',
-    bankName: '',
-    addressLine1: '',
-    addressLine2: '',
-    city: '',
-    country: '',
-    zipCode: ''
+    name: '',
+    Bank_Account_No: '',
+    Bank_Name: '',
+    Address_Line_1: '',
+    Address_Line_2: '',
+    City: '',
+    Country: '',
+    Zip_Code: ''
   })
   const [submitting, setSubmitting] = useState(false)
+  const [loadingVendor, setLoadingVendor] = useState(true)
 
+  // Redirect to login if not authenticated
   useEffect(() => {
     if (!loading && !user) {
       router.push('/login')
     }
   }, [user, loading, router])
 
+  // Fetch vendor data when ID is available
+  useEffect(() => {
+    if (id) fetchVendor()
+  }, [id])
+
+  const fetchVendor = async () => {
+    try {
+      const response = await fetch(`/api/vendor/${id}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      })
+
+      if (response.ok) {
+        const v = await response.json()
+        // Map API fields into state
+        setFormData({
+          name: v.name || '',
+          Bank_Account_No: v.Bank_Account_No || '',
+          Bank_Name: v.Bank_Name || '',
+          Address_Line_1: v.Address_Line_1 || '',
+          Address_Line_2: v.Address_Line_2 || '',
+          City: v.City || '',
+          Country: v.Country || '',
+          Zip_Code: v.Zip_Code || ''
+        })
+      }
+    } catch (error) {
+      console.error('Error fetching vendor:', error)
+    } finally {
+      setLoadingVendor(false)
+    }
+  }
+
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    })
+    const { name, value } = e.target
+    setFormData(prev => ({ ...prev, [name]: value }))
   }
 
   const handleSubmit = async (e) => {
@@ -38,30 +79,22 @@ export default function AddVendor() {
     setSubmitting(true)
 
     try {
-      // Transform form data to match API schema
-      const apiData = {
-        name: formData.vendorName,
-        Bank_Account_No: parseInt(formData.bankAccountNo) || 0,
-        Bank_Name: formData.bankName,
-        Address_Line_1: formData.addressLine1,
-        Address_Line_2: formData.addressLine2,
-        City: formData.city,
-        Country: formData.country,
-        Zip_Code: formData.zipCode
-      }
-
-      await fetch('/api/vendor', {
-        method: 'POST',
+      const response = await fetch(`/api/vendor/${id}`, {
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
+          'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify(apiData),
+        body: JSON.stringify(formData)
       })
 
-      router.push('/dashboard')
+      if (response.ok) {
+        router.push('/dashboard')
+      } else {
+        console.error('Failed to update vendor')
+      }
     } catch (error) {
-      console.error('Error creating vendor:', error)
+      console.error('Error updating vendor:', error)
     } finally {
       setSubmitting(false)
     }
@@ -75,49 +108,57 @@ export default function AddVendor() {
     )
   }
 
+  if (loadingVendor) {
+    return (
+      <div className="min-h-screen bg-gray-100">
+        <div className="max-w-4xl mx-auto px-5 py-8">
+          <div className="text-center py-8">
+            <div className="text-xl">Loading vendor...</div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-gray-100">
       <div className="max-w-4xl mx-auto px-5 py-8">
         <div className="bg-white rounded-lg shadow-md p-8">
-          <h1 className="text-3xl font-bold text-gray-800 mb-8">Add New Vendor</h1>
+          <h1 className="text-3xl font-bold text-gray-800 mb-8">Edit Vendor</h1>
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="form-group">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Vendor Name <span className="text-red-500">*</span>
-              </label>
+            {/* Vendor Name */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Vendor Name <span className="text-red-500">*</span></label>
               <input
                 type="text"
-                name="vendorName"
-                value={formData.vendorName}
+                name="name"
+                value={formData.name}
                 onChange={handleChange}
                 required
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
               />
             </div>
 
+            {/* Bank Details */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="form-group">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Bank Account No. <span className="text-red-500">*</span>
-                </label>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Bank Account No. <span className="text-red-500">*</span></label>
                 <input
-                  type="number"
-                  name="bankAccountNo"
-                  value={formData.bankAccountNo}
+                  type="text"
+                  name="Bank_Account_No"
+                  value={formData.Bank_Account_No}
                   onChange={handleChange}
                   required
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
                 />
               </div>
-              <div className="form-group">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Bank Name <span className="text-red-500">*</span>
-                </label>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Bank Name <span className="text-red-500">*</span></label>
                 <input
                   type="text"
-                  name="bankName"
-                  value={formData.bankName}
+                  name="Bank_Name"
+                  value={formData.Bank_Name}
                   onChange={handleChange}
                   required
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
@@ -125,53 +166,47 @@ export default function AddVendor() {
               </div>
             </div>
 
-            <div className="form-group">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Address Line 1
-              </label>
+            {/* Address Lines */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Address Line 1</label>
               <input
                 type="text"
-                name="addressLine1"
-                value={formData.addressLine1}
+                name="Address_Line_1"
+                value={formData.Address_Line_1}
                 onChange={handleChange}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
               />
             </div>
 
-            <div className="form-group">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Address Line 2 <span className="text-red-500">*</span>
-              </label>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Address Line 2 <span className="text-red-500">*</span></label>
               <input
                 type="text"
-                name="addressLine2"
-                value={formData.addressLine2}
+                name="Address_Line_2"
+                value={formData.Address_Line_2}
                 onChange={handleChange}
                 required
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
               />
             </div>
 
+            {/* City & Country */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="form-group">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  City
-                </label>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">City</label>
                 <input
                   type="text"
-                  name="city"
-                  value={formData.city}
+                  name="City"
+                  value={formData.City}
                   onChange={handleChange}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
                 />
               </div>
-              <div className="form-group">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Country
-                </label>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Country</label>
                 <select
-                  name="country"
-                  value={formData.country}
+                  name="Country"
+                  value={formData.Country}
                   onChange={handleChange}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
                 >
@@ -184,26 +219,26 @@ export default function AddVendor() {
               </div>
             </div>
 
-            <div className="form-group">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Zip Code
-              </label>
+            {/* Zip Code */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Zip Code</label>
               <input
                 type="text"
-                name="zipCode"
-                value={formData.zipCode}
+                name="Zip_Code"
+                value={formData.Zip_Code}
                 onChange={handleChange}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
               />
             </div>
 
+            {/* Actions */}
             <div className="flex gap-4 pt-6">
               <button
                 type="submit"
                 disabled={submitting}
                 className="bg-purple-600 text-white px-8 py-3 rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50"
               >
-                {submitting ? 'Creating...' : 'Create Vendor'}
+                {submitting ? 'Updating...' : 'Update Vendor'}
               </button>
               <Link
                 href="/dashboard"

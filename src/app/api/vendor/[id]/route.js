@@ -16,7 +16,7 @@ const vendorSchema = z.object({
 
 // GET /api/vendor/[id]
 export async function GET(request, { params }) {
-  const { id } = params;
+  const { id } =await params;
   try {
     await connectToDatabase();
     const vendor = await vendorModel.findById(id);
@@ -31,7 +31,7 @@ export async function GET(request, { params }) {
 
 // PUT /api/vendor/[id]
 export async function PUT(request, { params }) {
-  const { id } = params;
+  const { id } =await params;
   try {
     await connectToDatabase();
     const data = await request.json();
@@ -52,7 +52,7 @@ export async function PUT(request, { params }) {
 
 // DELETE /api/vendor/[id]
 export async function DELETE(request, { params }) {
-  const { id } = params;
+  const { id } =await params;
   try {
     await connectToDatabase();
     const result = await vendorModel.findByIdAndDelete(id);

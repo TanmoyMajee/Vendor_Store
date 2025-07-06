@@ -1,5 +1,6 @@
 
 
+"use client"
 
 import { createContext, useContext, useEffect, useState } from 'react'
 import { 
@@ -26,31 +27,33 @@ export function useAuth() {
 
 export const AuthProvider = ({children})=>{
 
-const [user,setUser] = useState('');
+const [user,setUser] = useState(null);
 const [loading, setLoading] = useState(true)
 const [token, setToken] = useState(null);
 
 
 
-  useEffect( () => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setUser(user)
       setLoading(false)
-      
-      // Set auth token 
+
       if (user) {
-       user.getIdToken().then(t=>setToken(t));
-        // user.getIdToken().then(token => {
-        //   document.cookie = `authToken=${token}; path=/; max-age=3600; secure; samesite=lax`
-        // })
+        try {
+          const token = await user.getIdToken()
+          setToken(token)
+        } catch (error) {
+          console.error('Error getting token:', error)
+          setToken(null)
+        }
       } else {
-        setToken(null);
-        // document.cookie = 'authToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
+        setToken(null)
       }
     })
-    // clean up the listner 
+
     return unsubscribe
   }, [])
+
 
 
 
