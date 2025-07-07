@@ -1,110 +1,3 @@
-// "use client"
-
-// import { useEffect, useState } from 'react'
-// import { useAuth } from '@/context/authContext'
-// import { useRouter } from 'next/navigation'
-// // import { apiRequest } from '@/lib/api'
-// import VendorList from '@/component/vendorList'
-// import Pagination from '@/component/Pagination'
-
-// export default function Dashboard() {
-//   const { user, loading ,token} = useAuth()
-//   const router = useRouter()
-//   const [vendors, setVendors] = useState([])
-//   const [pagination, setPagination] = useState({ page: 1, limit: 6, total: 0, totalPages: 1 })
-//   const [currentPage, setCurrentPage] = useState(1)
-//   const [loadingVendors, setLoadingVendors] = useState(true)
-
-//   useEffect(() => {
-//     if (!loading && !user) {
-//       router.push('/login')
-//     }
-//   }, [user, loading, router])
-
-//   useEffect(() => {
-//     if (user) {
-//       fetchVendors()
-//     }
-//   }, [user])
-  
-//   const fetchVendors = async () => {
-//     try {
-//       const response = await fetch('/api/vendor', {
-//         method: 'GET',
-//         headers: {
-//           'Content-Type': 'application/json',
-//           'Authorization': `Bearer ${token}`,
-//         }
-//       })
-
-//       if (!response.ok) {
-//         throw new Error(`HTTP error! status: ${response.status}`)
-//       }
-
-//       const data = await response.json() // ✅ Parse the JSON response
-//       setVendors(data.vendors || [] ) // Now data is the actual JSON
-//       setPagination(data.pagination || {})
-//       console.log(data)
-//     } catch (error) {
-//       console.error('Error fetching vendors:', error)
-//       setVendors([]) // Set empty array on error
-//     } finally {
-//       setLoadingVendors(false)
-//     }
-//   }
-
-//    const handlePageChange = (newPage) => {
-//     setPagination(prev => ({ ...prev, page: newPage }))
-//   }
-
-//   const handleDeleteVendor = async (vendorId) => {
-//     try {
-//       await fetch(`/api/vendor/${vendorId}`, {
-//         method: 'DELETE',
-//         headers: {
-//           'Content-Type': 'application/json',
-//           'Authorization': `Bearer ${token}`,
-//         }
-//       })
-//       setVendors(vendors.filter(vendor => vendor._id !== vendorId))
-//     } catch (error) {
-//       console.error('Error deleting vendor:', error)
-//     }
-//   }
-
-//   if (loading || !user) {
-//     return (
-//       <div className="min-h-screen flex items-center justify-center">
-//         <div className="text-xl">Loading...</div>
-//       </div>
-//     )
-//   }
-
-//   return (
-//     <div className="min-h-screen bg-gray-100">
-//       <div className="max-w-6xl mx-auto px-5 py-8">
-//         {loadingVendors ? (
-//           <div className="text-center py-8">
-//             <div className="text-xl">Loading vendors...</div>
-//           </div>
-//         ) : (
-//             <VendorList
-//               vendors={vendors}
-//               pagination={pagination}
-//               onDelete={handleDeleteVendor}
-//               onPageChange={handlePageChange}
-//             />
-//         )}
-//       </div>
-//             {pagination.totalPages > 1 && (
-//               <Pagination 
-//                 pagination={pagination} 
-//                 onPageChange={handlePageChange} 
-//               />
-//             )}
-//     </div>
-//   )
-// }
 
 "use client"
 
@@ -186,7 +79,7 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 pb-24"> {/* ensure pagination visibility */}
+    <div className="min-h-screen bg-gray-100 pb-24"> 
       <div className="max-w-6xl mx-auto px-5 py-8">
         {loadingVendors ? (
           <div className="text-center py-8">
